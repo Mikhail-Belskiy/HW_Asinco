@@ -14,7 +14,7 @@ class SWapiPeople(Base):
     id: Mapped[int]  =mapped_column(Integer, primary_key=True)
     birth_year: Mapped[str]
     eye_color: Mapped[str]
-    # films: Mapped[list]
+    films: Mapped[str]
     gender: Mapped[str]
     hair_color: Mapped[str]
     height: Mapped[str]
@@ -23,8 +23,8 @@ class SWapiPeople(Base):
     name: Mapped[str]
     skin_color: Mapped[str]
     species: Mapped[str]
-    # starships: Mapped[str]
-    # vehicles: Mapped[str]
+    starships: Mapped[str]
+    vehicles: Mapped[str]
     # json: Mapped[dict] = mapped_column(JSON)
 
 async def init_orm():

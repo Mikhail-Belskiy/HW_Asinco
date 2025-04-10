@@ -14,20 +14,16 @@ async def get_people (person_id, session):
         json = await response.json()
         return json
 
-# async def insert_results(results_list_json):
-#     async with Session() as session:
-#         people = [SWapiPeople(json=result) for result in results_list_json]
-#         session.add_all(people)
-#         await session.commit()
-
 async def insert_results(results_list_json):
     async with Session() as session:
         people = []
         for json_item in results_list_json:
+            if json_item is None:
+                continue
             person_id = json_item.get('id')
             birth_year = json_item.get('birth_year')
             eye_color = json_item.get('eye_color')
-            # films = json_item.get('films')
+            films_name = await get_films(json_item.get('films'))
             gender = json_item.get('gender')
             hair_color = json_item.get('hair_color')
             height = json_item.get('height')
@@ -36,12 +32,12 @@ async def insert_results(results_list_json):
             name = json_item.get('name')
             skin_color = json_item.get('skin_color')
             species_name = await get_species (json_item.get('species'))
-            # starships = json_item.get('starships')
-            # vehicles = json_item.get('vehicles')
+            starships_name = await get_starships(json_item.get('starships'))
+            vehicles_name = await get_vehicles(json_item.get('vehicles'))
             people.append((SWapiPeople(id=person_id,
                                        birth_year=birth_year,
                                        eye_color=eye_color,
-                                       # films=films,
+                                       films=films_name,
                                        gender=gender,
                                        hair_color=hair_color,
                                        height=height,
@@ -49,11 +45,28 @@ async def insert_results(results_list_json):
                                        mass=mass,
                                        name=name,
                                        skin_color=skin_color,
-                                       species=species_name)))
-                                       # starships=starships,
-                                       # vehicles=vehicles)))
+                                       species=species_name,
+                                       starships=starships_name,
+                                       vehicles=vehicles_name)))
         session.add_all(people)
         await session.commit()
+
+async def get_films(films):
+    titles = []
+    async with aiohttp.ClientSession() as session:
+        for data in films:
+            if data is None:
+                continue
+            # print(data)
+            try:
+                async with session.get(data) as response:
+                    films_data = await response.json()
+                    # print(films_data)
+                    titles.append(films_data['title'])
+                    print(''.join(titles))
+            except Exception as e:
+                print(f'Error getting film from {data}:{e}')
+    return ', '.join(titles)
 
 async def get_homeworld(homeworld):
     async with aiohttp.ClientSession() as session:
@@ -75,10 +88,30 @@ async def get_species(species):
     return ''.join(titles)
 
 async def get_starships(starships):
-    pass
+    titles = []
+    async with aiohttp.ClientSession() as session:
+        for data in starships:
+            # print(data)
+            async with session.get(data) as response:
+                species_data = await response.json()
+                # print(species_data)
+                titles.append(species_data['name'])
+                # print(''.join(titles))
+    return ', '.join(titles)
 
 async def get_vehicles(vehicles):
-    pass
+    titles = []
+    async with aiohttp.ClientSession() as session:
+        for data in vehicles:
+            # print(data)
+            async with session.get(data) as response:
+                species_data = await response.json()
+                # print(species_data)
+                titles.append(species_data['name'])
+                # print(''.join(titles))
+    return ', '.join(titles)
+
+
 
 async def main():
     await init_orm()
