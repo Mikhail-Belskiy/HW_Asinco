@@ -1,4 +1,6 @@
 import asyncio
+
+from aiohttp import web
 from more_itertools import chunked
 from models import Session, init_orm, close_orm, SWapiPeople
 import aiohttp
@@ -111,7 +113,7 @@ async def get_vehicles(vehicles):
                 print(f'Error getting vehicle: {e}')
     return ', '.join(titles)
 
-async def main():
+async def main(request):
     await init_orm()
     async with aiohttp.ClientSession() as session:
         for i_chunk in chunked(range(1, 101), MAX_CONCURRENT_REQUEST):
@@ -120,6 +122,3 @@ async def main():
             await insert_results(results)
     await close_orm()
 
-# Запуск основного сценария
-if __name__ == '__main__':
-    asyncio.run(main())
